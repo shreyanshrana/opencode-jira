@@ -13,6 +13,7 @@ interface Props {
   maxHeight: Accessor<number>
   refresh: () => Promise<void>
   open: (url: string) => Promise<void>
+  openBoard: () => Promise<void>
   registerFocus: (focus: (() => void) | undefined) => void
 }
 
@@ -29,6 +30,7 @@ export function Sidebar(props: Props) {
   const [closed, setClosed] = createSignal<Record<Category, boolean>>({ "in-progress": false, todo: false, done: true, other: false })
   const [selected, setSelected] = createSignal<string>()
   const [hovered, setHovered] = createSignal<string>()
+  const [hoveredSprint, setHoveredSprint] = createSignal<number | "heading">()
   const [focused, setFocused] = createSignal(false)
   const groups = createMemo(() => groupTickets(props.data().tickets))
   const tickets = createMemo(() => new Map(props.data().tickets.map((ticket) => [ticket.key, ticket])))
@@ -121,9 +123,16 @@ export function Sidebar(props: Props) {
   return (
     <box flexDirection="column" flexShrink={0} paddingTop={1}>
       <box flexDirection="row" justifyContent="space-between">
-        <text fg={theme.text.base} flexGrow={1} flexShrink={1} minWidth={0} wrapMode="word" selectable={false} onMouseUp={(event) => {
+        <text fg={theme.text.base} width={2} height={1} flexShrink={0} selectable={false} onMouseUp={(event) => {
           if (clicked(event)) { if (focused()) leave(); setCollapsed(!collapsed()) }
-        }}><b>{collapsed() ? "▶" : "▼"} {sprintHeading(props.data().sprints)} · {props.data().tickets.length}</b></text>
+        }}><b>{collapsed() ? "▶" : "▼"} </b></text>
+        <text fg={theme.text.base} flexGrow={1} flexShrink={1} minWidth={0} wrapMode="word" selectable={false}
+          attributes={hoveredSprint() === "heading" ? TextAttributes.UNDERLINE : 0}
+          onMouseOver={() => { if (props.data().sprints.length === 1) setHoveredSprint("heading") }}
+          onMouseOut={() => { if (hoveredSprint() === "heading") setHoveredSprint(undefined) }}
+          onMouseUp={(event) => { if (clicked(event) && props.data().sprints.length === 1) void props.openBoard() }}>
+          <b>{sprintHeading(props.data().sprints)} · {props.data().tickets.length}</b>
+        </text>
         <text fg={theme.text.muted} flexShrink={0} selectable={false} onMouseUp={(event) => {
           if (clicked(event)) void props.refresh()
         }}>{props.loading() ? "…" : "↻"}</text>
@@ -131,12 +140,18 @@ export function Sidebar(props: Props) {
       <Show when={!collapsed()}>
         <Show when={props.data().sprints.length > 1}>
           <For each={props.data().sprints}>{(sprint) => (
-            <text fg={theme.text.muted} wrapMode="word" selectable={false}>{sprint.name || `Sprint ${sprint.id}`}</text>
+            <text fg={theme.text.muted} wrapMode="word" selectable={false}
+              attributes={hoveredSprint() === sprint.id ? TextAttributes.UNDERLINE : 0}
+              onMouseOver={() => setHoveredSprint(sprint.id)}
+              onMouseOut={() => { if (hoveredSprint() === sprint.id) setHoveredSprint(undefined) }}
+              onMouseUp={(event) => { if (clicked(event)) void props.openBoard() }}>
+              {sprint.name || `Sprint ${sprint.id}`}
+            </text>
           )}</For>
         </Show>
         <Show when={props.loading() && !props.loaded()}><text fg={theme.text.muted}>Loading Jira tickets…</text></Show>
         <Show when={props.error()}>
-          <text fg={theme.text.muted} wrapMode="word">{props.error()}{props.loaded() ? " (Showing last loaded tickets.)" : ""}</text>
+          <text fg={theme.text.muted} wrapMode="word">{props.error()}{props.loaded() ? " (Showing cached tickets.)" : ""}</text>
         </Show>
         <Show when={props.loaded() && !props.data().sprints.length && !props.error()}><text fg={theme.text.muted}>No active sprint.</text></Show>
         <Show when={props.loaded() && props.data().sprints.length > 0 && !props.data().tickets.length && !props.error()}>
