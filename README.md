@@ -3,7 +3,7 @@
 Your Jira tickets, pinned to the bottom of OpenCode's right sidebar.
 
 ```text
-▼ My sprint · 3                   ↻
+▼ Sprint 42 · 3                   ↻
 ▼ In progress · 1
   TEAM-5050 · Task
   Collect all pokemon
@@ -17,7 +17,9 @@ Your Jira tickets, pinned to the bottom of OpenCode's right sidebar.
 
 - Only issues assigned to the authenticated Jira user (`assignee = currentUser()`).
 - Only active sprints on your configured Scrum board. Parallel active sprints are combined and duplicate tickets removed.
+- The heading shows the active sprint's name. With parallel active sprints, it shows **My sprints** and lists their names underneath when expanded. Long names wrap without hiding the refresh control.
 - Tickets are grouped by Jira status category: **In progress**, **To do**, then **Done** (collapsed initially). Custom workflow names map to their Jira categories, not their labels. Tickets without a recognized category appear in **Other**.
+- Standard status group headings stay visible even when empty, including **To do** and **In progress**. **Other** appears only when needed.
 - Rows show a muted key and Jira issue type (for example, `TEAM-5050 · Task`) above the full title, wrapping across as many lines as needed. Custom issue type names are supported; missing type metadata is simply omitted. Hover underlines the key and title to identify the clickable ticket, without changing its background. Click anywhere on a ticket row to open it in your default browser.
 - Click section headings to collapse them. All stacks share a bounded scroll area; refreshes retain group state and ticket keys so the list does not reset unnecessarily.
 - **Bug** issue-type labels are red and **Story** labels are green, using the selected theme's palette. Ticket numbers and other issue types remain muted.
@@ -123,7 +125,7 @@ Babel compiles TypeScript and Solid JSX without bundling OpenCode's UI dependenc
 
 OpenTUI 0.6.7 declares a Node 26.4+ / Bun 1.3.14+ engine requirement, so installing development dependencies on an older Node may warn even though the non-UI tests run there. The development dependency tree overrides `seroval` to a patched version. This override does not change OpenCode's bundled runtime; keep your OpenCode installation updated.
 
-`npm pack` produces an installable `opencode-jira-0.1.0.tgz` containing compiled JavaScript and documentation, not source credentials or development dependencies. npm publishing is a separate release step; this repository does not automatically publish packages. No credentials are included in the package.
+`npm pack` produces an installable `opencode-jira-<version>.tgz` containing compiled JavaScript and documentation, not source credentials or development dependencies. Publishing a GitHub release triggers the npm publishing workflow; its tag must match `v<version>` from `package.json`. No credentials are included in the package.
 
 ## License
 

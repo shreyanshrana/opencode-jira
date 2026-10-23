@@ -3,7 +3,7 @@ import { TextAttributes } from "@opentui/core"
 import type { MouseEvent, Renderable, ScrollBoxRenderable } from "@opentui/core"
 import { For, Show, createEffect, createMemo, createSignal, onCleanup, type Accessor } from "solid-js"
 import type { SprintTickets } from "./jira.ts"
-import { categories, groupTickets, issueTypeHue, moveSelection, sidebarRows, type Category } from "./tickets.ts"
+import { categories, groupTickets, issueTypeHue, moveSelection, sidebarRows, sprintHeading, type Category } from "./tickets.ts"
 
 interface Props {
   data: Accessor<SprintTickets>
@@ -121,14 +121,19 @@ export function Sidebar(props: Props) {
   return (
     <box flexDirection="column" flexShrink={0} paddingTop={1}>
       <box flexDirection="row" justifyContent="space-between">
-        <text fg={theme.text.base} selectable={false} onMouseUp={(event) => {
+        <text fg={theme.text.base} flexGrow={1} flexShrink={1} minWidth={0} wrapMode="word" selectable={false} onMouseUp={(event) => {
           if (clicked(event)) { if (focused()) leave(); setCollapsed(!collapsed()) }
-        }}><b>{collapsed() ? "▶" : "▼"} My sprint · {props.data().tickets.length}</b></text>
-        <text fg={theme.text.muted} selectable={false} onMouseUp={(event) => {
+        }}><b>{collapsed() ? "▶" : "▼"} {sprintHeading(props.data().sprints)} · {props.data().tickets.length}</b></text>
+        <text fg={theme.text.muted} flexShrink={0} selectable={false} onMouseUp={(event) => {
           if (clicked(event)) void props.refresh()
         }}>{props.loading() ? "…" : "↻"}</text>
       </box>
       <Show when={!collapsed()}>
+        <Show when={props.data().sprints.length > 1}>
+          <For each={props.data().sprints}>{(sprint) => (
+            <text fg={theme.text.muted} wrapMode="word" selectable={false}>{sprint.name || `Sprint ${sprint.id}`}</text>
+          )}</For>
+        </Show>
         <Show when={props.loading() && !props.loaded()}><text fg={theme.text.muted}>Loading Jira tickets…</text></Show>
         <Show when={props.error()}>
           <text fg={theme.text.muted} wrapMode="word">{props.error()}{props.loaded() ? " (Showing last loaded tickets.)" : ""}</text>

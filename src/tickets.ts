@@ -1,4 +1,4 @@
-import type { Ticket } from "./jira.ts"
+import type { SprintTickets, Ticket } from "./jira.ts"
 
 export const categories = [
   { id: "in-progress", label: "In progress" },
@@ -8,6 +8,11 @@ export const categories = [
 ] as const
 
 export type Category = typeof categories[number]["id"]
+
+export function sprintHeading(sprints: SprintTickets["sprints"]): string {
+  if (sprints.length > 1) return "My sprints"
+  return sprints[0]?.name || "My sprint"
+}
 
 export function issueTypeHue(name: string | undefined): "red" | "green" | undefined {
   switch (name?.trim().toLowerCase()) {
