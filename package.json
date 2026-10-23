@@ -1,6 +1,6 @@
 {
   "name": "opencode-jira",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Your Jira sprint tickets, pinned to the OpenCode sidebar.",
   "type": "module",
   "license": "MIT",
