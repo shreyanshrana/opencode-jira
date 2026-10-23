@@ -1,6 +1,6 @@
-# OpenCode Jira
+# OpenCode Jira Plugin
 
-Your Jira tickets, pinned to the bottom of OpenCode's right sidebar.
+A plugin for OpenCode that pins your Jira tickets to the bottom of the right sidebar.
 
 ```text
 ▼ Sprint 42 · 3                   ↻
