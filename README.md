@@ -17,15 +17,15 @@ A plugin for OpenCode that pins your Jira tickets to the bottom of the right sid
 
 - Only issues assigned to the authenticated Jira user (`assignee = currentUser()`).
 - Only active sprints on your configured Scrum board. Parallel active sprints are combined and duplicate tickets removed.
-- The heading shows the active sprint's name. With parallel active sprints, it shows **My sprints** and lists their names underneath when expanded. Long names wrap without hiding the refresh control.
+- The heading shows the active sprint's name. Click the name to open the configured board's active-sprints view in your default browser. With parallel active sprints, the heading shows **My sprints** and lists clickable sprint names underneath when expanded; each opens the same configured board. Long names wrap without hiding the refresh control, and clickable sprint names are underlined on hover.
 - Tickets are grouped by Jira status category: **In progress**, **To do**, then **Done** (collapsed initially). Custom workflow names map to their Jira categories, not their labels. Tickets without a recognized category appear in **Other**.
 - Standard status group headings stay visible even when empty, including **To do** and **In progress**. **Other** appears only when needed.
 - Rows show a muted key and Jira issue type (for example, `TEAM-5050 · Task`) above the full title, wrapping across as many lines as needed. Custom issue type names are supported; missing type metadata is simply omitted. Hover underlines the key and title to identify the clickable ticket, without changing its background. Click anywhere on a ticket row to open it in your default browser.
-- Click section headings to collapse them. All stacks share a bounded scroll area; refreshes retain group state and ticket keys so the list does not reset unnecessarily.
+- Click the arrow beside the sprint heading to collapse or expand the whole section; clicking a sprint name opens the board without toggling the section. Click status group headings to fold individual groups. All stacks share a bounded scroll area; refreshes retain group state and ticket keys so the list does not reset unnecessarily.
 - **Bug** issue-type labels are red and **Story** labels are green, using the selected theme's palette. Ticket numbers and other issue types remain muted.
 - Choose **Focus Jira sprint tickets** in the command palette for keyboard navigation: ↑/↓ select, Enter opens a ticket or toggles a group, ←/→ fold/unfold a group, Space shows the complete title and workflow status, Esc returns to the previous input. Keyboard-selected tickets also get a short title preview.
 - Click ↻ or run `/jira-refresh` to refresh.
-- Automatic refresh every two minutes. Failed refreshes retain the last successful list with an error indicator.
+- Automatic refresh every two minutes, with up to five seconds of random delay on background checks. Windows reuse fresh results through OpenCode's shared durable storage. Failed refreshes retain the last successful list with an error indicator.
 - Runs locally in the CLI, including when connected to a remote OpenCode server. No Jira data is sent to the model.
 
 Requires **OpenCode V2 2.1.2+**, Jira Cloud, and a Scrum board. Not compatible with OpenCode V1 or Jira Data Center. The sidebar must be visible and terminal mouse capture enabled for clicking. The section sits immediately above the existing sidebar footer (project path).
@@ -91,7 +91,7 @@ All options are per user; there is no hardcoded Jira tenant or board.
 | `cloudId` | `JIRA_CLOUD_ID`, then discovery | Jira Cloud UUID for scoped-token requests. |
 | `emailEnv` | `JIRA_EMAIL` | Name of the environment variable holding your Atlassian email. |
 | `tokenEnv` | `JIRA_API_TOKEN` | Name of the environment variable holding your scoped API token. |
-| `refreshSeconds` | `120` | Poll interval, 30–86400 seconds. Rate-limit responses may delay it further. |
+| `refreshSeconds` | `120` | Cache freshness / poll interval, 30–86400 seconds. Background checks add up to five seconds of jitter; rate-limit responses may delay them further. |
 | `maxHeight` | `12` | Maximum ticket-list height in terminal rows, 3–40. |
 
 `boardUrl` takes precedence over `site` / `boardId`. Options take precedence over environment values. Multiple accounts can use custom `emailEnv` / `tokenEnv` names. All active sprint pages and ticket pages are fetched; tickets retain Jira's rank order within each status group. Tickets completed in the active sprint are included if still assigned to you; expand **Done** to see them. The plugin fetches `summary`, `status`, and `issuetype` and requires no extra scopes for issue types or grouping.
@@ -105,7 +105,18 @@ All options are per user; there is no hardcoded Jira tenant or board.
 - **Clicks do nothing:** enable `mouse` in CLI settings and configure a default browser. Linux requires `xdg-open`.
 - **Kanban board:** use a Scrum board; Kanban boards do not have sprints.
 
-The plugin does not change OpenCode configuration or store credentials or tickets on disk. It does not create or modify Jira issues. Browser launching uses argument arrays without a shell and only permits HTTPS Jira Cloud ticket URLs.
+## Shared cache and privacy
+
+The plugin uses OpenCode's public `context.storage.store` API to persist sprint names, ticket metadata, the last successful refresh timestamp, and Jira's rate-limit cooldown. OpenCode manages the storage location and synchronizes it across local TUI instances using the same OpenCode storage profile. No plugin-managed cache files, lock files, database, or background daemon are created.
+
+- Windows display the last cached result immediately and skip automatic Jira requests while it is fresh. Updates from another window appear in the sidebar through OpenCode's live storage synchronization.
+- Entries are separated by a SHA-256 hash of the Jira site, board ID, optional cloud-ID override, email, and API token. Raw credentials and email are not written to the cache; changing credentials selects a different entry. Display preferences and polling intervals do not change the entry.
+- Each window uses its own `refreshSeconds` to check freshness. A window with a shorter interval may refresh the shared data more often.
+- Manual refresh bypasses freshness, but respects Jira's cooldown shared by the other windows. If a cache write fails, new tickets remain visible locally with a warning, and a rate-limited window still enforces its own cooldown.
+- There is deliberately no cross-process lock. Simultaneous stale-cache checks or manual refreshes can still produce duplicate requests; jitter reduces the likelihood but does not guarantee one fetch across windows.
+- **Ticket data now persists on disk across restarts**, including issue keys, titles, types, statuses, URLs, and sprint names. The cache is not an encrypted credential store. Entries are not automatically deleted when they become stale or when a token changes; stale data can still be displayed if Jira is unavailable. Retention and storage management follow OpenCode's storage lifecycle.
+
+The plugin does not change OpenCode configuration or create or modify Jira issues. Browser launching uses argument arrays without a shell and only permits HTTPS Jira Cloud ticket URLs and validated active-sprints board links. Board links use the configured site and board ID and never include API credentials.
 
 ## Development
 
