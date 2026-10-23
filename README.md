@@ -53,22 +53,14 @@ Requests use Basic authentication with `email:token` against `https://api.atlass
 
 ## Install globally
 
-The package is not yet published to npm. Install from GitHub by cloning and building it:
-
-```sh
-git clone https://github.com/shreyanshrana/opencode-jira.git
-cd opencode-jira
-npm ci
-```
-
-`npm ci` builds the plugin automatically. Add the following entry to the `plugins` array in `~/.config/opencode/cli.json` (or `$XDG_CONFIG_HOME/opencode/cli.json`). Preserve existing entries and settings:
+Install the published [opencode-jira](https://www.npmjs.com/package/opencode-jira) plugin by adding the following entry to the `plugins` array in `~/.config/opencode/cli.json` (or `$XDG_CONFIG_HOME/opencode/cli.json`). Preserve existing entries and settings:
 
 ```json
 {
   "$schema": "https://opencode.ai/v2/cli.json",
   "plugins": [
     {
-      "package": "/absolute/path/to/opencode-jira",
+      "package": "opencode-jira",
       "options": {
         "boardUrl": "https://your-team.atlassian.net/jira/software/c/projects/TEAM/boards/173"
       }
@@ -77,9 +69,11 @@ npm ci
 }
 ```
 
-Replace the local package path and board URL with your own. Once published to npm, the package name will be `opencode-jira`. This is a CLI-only integration; it does not require an MCP server.
+Replace `boardUrl` with your own Jira Scrum board URL and set `JIRA_EMAIL` and `JIRA_API_TOKEN` as described in [Authentication](#authentication-api-token-with-scopes).
 
-To update a GitHub checkout, run `git pull --ff-only` and `npm ci` from its directory, then restart OpenCode.
+OpenCode downloads the npm package automatically. No global npm installation, cloning, or build step is needed. Restart OpenCode after configuring the plugin and credentials. This is a CLI-only integration; it does not require an MCP server.
+
+To pin a specific release, use a versioned package entry such as `"package": "opencode-jira@0.1.0"`.
 
 Open a session with the right sidebar visible. If there are no active sprints or no assigned issues, the section displays an appropriate empty state.
 
@@ -114,14 +108,18 @@ The plugin does not change OpenCode configuration or store credentials or ticket
 ## Development
 
 ```sh
-npm install
+git clone https://github.com/shreyanshrana/opencode-jira.git
+cd opencode-jira
+npm ci
 npm run typecheck
 npm test
 npm run build
 npm pack --dry-run
 ```
 
-Run `npm run build` before loading a local checkout, and again after changing source. Babel compiles TypeScript and Solid JSX without bundling OpenCode's UI dependencies. Published packages contain JavaScript: OpenCode's TSX transformer excludes `node_modules`. `npm pack` runs the build and checks automatically. OpenTUI's native renderer runs inside OpenCode, not the Node-based unit tests. The host provides the UI peer dependencies. Node 22.18+ is required for the development tests.
+`npm ci` builds the checkout automatically. To test local changes, replace `"package": "opencode-jira"` in your CLI configuration with the absolute checkout path, such as `"package": "/absolute/path/to/opencode-jira"`. Run `npm run build` after changing source and restart OpenCode. To update a checkout, run `git pull --ff-only` and `npm ci`.
+
+Babel compiles TypeScript and Solid JSX without bundling OpenCode's UI dependencies. Published packages contain JavaScript: OpenCode's TSX transformer excludes `node_modules`. `npm pack` runs the build and checks automatically. OpenTUI's native renderer runs inside OpenCode, not the Node-based unit tests. The host provides the UI peer dependencies. Node 22.18+ is required for the development tests.
 
 OpenTUI 0.6.7 declares a Node 26.4+ / Bun 1.3.14+ engine requirement, so installing development dependencies on an older Node may warn even though the non-UI tests run there. The development dependency tree overrides `seroval` to a patched version. This override does not change OpenCode's bundled runtime; keep your OpenCode installation updated.
 
