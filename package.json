@@ -1,0 +1,51 @@
+{
+  "name": "opencode-jira",
+  "version": "0.1.0",
+  "description": "Your Jira sprint tickets, pinned to the OpenCode sidebar.",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "shreyanshrana",
+    "email": "shreyanshrana@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shreyanshrana/opencode-jira.git"
+  },
+  "homepage": "https://github.com/shreyanshrana/opencode-jira#readme",
+  "bugs": { "url": "https://github.com/shreyanshrana/opencode-jira/issues" },
+  "keywords": ["opencode", "opencode-plugin", "jira", "sprint", "sidebar"],
+  "exports": {
+    ".": "./index.js",
+    "./tui": "./tui.js"
+  },
+  "files": ["index.js", "tui.js", "dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepack": "npm run typecheck && npm test && npm run build"
+  },
+  "engines": { "node": ">=22.18.0" },
+  "overrides": {
+    "seroval": "^1.7.1"
+  },
+  "peerDependencies": {
+    "@opencode/plugin": "^2.1.2",
+    "@opentui/core": "^0.6.6",
+    "@opentui/solid": "^0.6.6",
+    "solid-js": "^1.9.12"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.7",
+    "@babel/preset-typescript": "7.27.1",
+    "@opencode/plugin": "2.1.2",
+    "@opentui/core": "0.6.7",
+    "@opentui/solid": "0.6.7",
+    "@types/node": "^24.0.0",
+    "babel-preset-solid": "1.9.12",
+    "solid-js": "1.9.12",
+    "typescript": "^5.9.0"
+  }
+}
