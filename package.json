@@ -1,6 +1,6 @@
 {
   "name": "opencode-jira",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Your Jira sprint tickets, pinned to the OpenCode sidebar.",
   "type": "module",
   "license": "MIT",
@@ -33,16 +33,16 @@
   },
   "peerDependencies": {
     "@opencode/plugin": "^2.1.2",
-    "@opentui/core": "^0.6.6",
-    "@opentui/solid": "^0.6.6",
+    "@opentui/core": "^0.6.6 || ^0.7.0",
+    "@opentui/solid": "^0.6.6 || ^0.7.0",
     "solid-js": "^1.9.12"
   },
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@babel/preset-typescript": "7.27.1",
-    "@opencode/plugin": "2.1.2",
-    "@opentui/core": "0.6.7",
-    "@opentui/solid": "0.6.7",
+    "@opencode/plugin": "2.2.2",
+    "@opentui/core": "0.7.0",
+    "@opentui/solid": "0.7.0",
     "@types/node": "^24.0.0",
     "babel-preset-solid": "1.9.12",
     "solid-js": "1.9.12",
