@@ -43,7 +43,7 @@ export function Sidebar(props: Props) {
   const group = (key: string) => categories.find(({ id }) => key === `group/${id}`)
   const typeColor = (name: string) => {
     const hue = issueTypeHue(name)
-    return hue ? theme.hue[hue][400] : theme.text.muted
+    return (hue ? theme.hue?.[hue]?.[400] : undefined) ?? theme.text.muted
   }
 
   function toggle(category: Category) {
